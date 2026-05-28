@@ -2,11 +2,6 @@
 # ============================================================
 # RunPod startup script — ComfyUI Wan2.2 Animate Head Swap
 # ============================================================
-# Struttura workspace (Network Volume montato su /workspace):
-#   /workspace/ComfyUI/          ← installazione ComfyUI
-#   /workspace/ComfyUI/models/   ← modelli (persistenti)
-#   /workspace/ComfyUI/custom_nodes/ ← nodi custom (persistenti)
-# ============================================================
 
 set -e
 
@@ -15,10 +10,7 @@ COMFYUI_DIR="$WORKSPACE/ComfyUI"
 MODELS_DIR="$COMFYUI_DIR/models"
 NODES_DIR="$COMFYUI_DIR/custom_nodes"
 
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
-
+GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
 log()  { echo -e "${GREEN}[START]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 
@@ -42,8 +34,6 @@ mkdir -p "$NODES_DIR" "$MODELS_DIR"
 install_node() {
     local name="$1"
     local url="$2"
-    local req_file="$NODES_DIR/$name/requirements.txt"
-
     if [ ! -d "$NODES_DIR/$name" ]; then
         log "Installando $name..."
         git clone --depth 1 "$url" "$NODES_DIR/$name"
@@ -51,21 +41,18 @@ install_node() {
         log "Aggiornando $name..."
         cd "$NODES_DIR/$name" && git pull -q
     fi
-
-    if [ -f "$req_file" ]; then
-        pip install -q -r "$req_file"
-    fi
+    [ -f "$NODES_DIR/$name/requirements.txt" ] && \
+        pip install -q -r "$NODES_DIR/$name/requirements.txt"
 }
 
+# Pacchetti necessari per il workflow
 install_node "ComfyUI-WanVideoWrapper"            "https://github.com/kijai/ComfyUI-WanVideoWrapper"
 install_node "ComfyUI-WanAnimatePreprocess"       "https://github.com/kijai/ComfyUI-WanAnimatePreprocess"
 install_node "ComfyUI-WanAnimatePreprocess-track" "https://github.com/Herony82/ComfyUI-WanAnimatePreprocess-track"
 install_node "ComfyUI-KJNodes"                    "https://github.com/kijai/ComfyUI-KJNodes"
 install_node "ComfyUI-VideoHelperSuite"           "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
-install_node "comfyui-supernodes"                 "https://github.com/XLabs-AI/x-flux-comfyui"
-
-# TODO: aggiungi qui il pacchetto GetNode/SetNode quando lo identifichi:
-# install_node "NOME_PACCHETTO" "https://github.com/..."
+install_node "ComfyUI-SuperNodes"                 "https://github.com/SuperComfy/ComfyUI-SuperNodes"
+install_node "cg-use-everywhere"                  "https://github.com/chrisgoringe/cg-use-everywhere"
 
 # ────────────────────────────────────────────────────────────
 # 3. Download modelli (skip se già presenti)
@@ -84,15 +71,15 @@ download_model() {
     fi
 }
 
-# Diffusion model (~28 GB — scarica una volta sola sul Network Volume)
+# Diffusion model (~28 GB)
 download_model "$MODELS_DIR/diffusion_models" \
     "https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/resolve/main/split_files/diffusion_models/wan2.2_animate_14B_bf16.safetensors"
 
-# VAE
+# VAE (~1 GB)
 download_model "$MODELS_DIR/vae" \
     "https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/Wan2_1_VAE_bf16.safetensors"
 
-# Text encoder (~10 GB)
+# Text encoder UMT5 (~10 GB)
 download_model "$MODELS_DIR/text_encoders" \
     "https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/umt5-xxl-enc-bf16.safetensors"
 
@@ -101,12 +88,12 @@ download_model "$MODELS_DIR/loras" \
     "https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/LoRAs/Wan22_relight/WanAnimate_relight_lora_fp16.safetensors"
 
 # LoRA — LightX2V
-# NOTA: il filename scaricato differisce dal workflow (rank128 vs rank256).
-# Aggiorna il nodo WanVideoLoraSelectMulti nel workflow col nome reale del file.
+# NOTA: filename scaricato = rank128, workflow usa rank256
+# → aggiorna WanVideoLoraSelectMulti nel workflow col nome corretto
 download_model "$MODELS_DIR/loras" \
     "https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/Lightx2v/lightx2v_I2V_14B_480p_cfg_step_distill_rank128_bf16.safetensors"
 
-# ONNX detection models → models/detection/
+# ONNX detection → models/detection/
 download_model "$MODELS_DIR/detection" \
     "https://huggingface.co/Wan-AI/Wan2.2-Animate-14B/resolve/main/process_checkpoint/det/yolov10m.onnx"
 
@@ -114,7 +101,7 @@ download_model "$MODELS_DIR/detection" \
     "https://huggingface.co/JunkyByte/easy_ViTPose/resolve/main/onnx/wholebody/vitpose-l-wholebody.onnx"
 
 # ────────────────────────────────────────────────────────────
-# 4. Copia workflow di esempio
+# 4. Workflow di esempio
 # ────────────────────────────────────────────────────────────
 WORKFLOW_DIR="$COMFYUI_DIR/user/default/workflows"
 mkdir -p "$WORKFLOW_DIR"
@@ -127,7 +114,7 @@ fi
 # ────────────────────────────────────────────────────────────
 # 5. Avvia ComfyUI
 # ────────────────────────────────────────────────────────────
-log "Avvio ComfyUI..."
+log "Avvio ComfyUI su porta 8188..."
 cd "$COMFYUI_DIR"
 python main.py \
     --listen 0.0.0.0 \
