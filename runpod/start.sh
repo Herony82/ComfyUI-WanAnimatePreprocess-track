@@ -58,7 +58,14 @@ install_node "ComfyUI-Easy-Use"                   "https://github.com/yolain/Com
 install_node "ComfyUI-Compare-Videos"             "https://github.com/surinder83singh/ComfyUI-compare-videos"
 
 # ────────────────────────────────────────────────────────────
-# 3. Download modelli (skip se già presenti)
+# 3. Dipendenze Python aggiuntive
+# ────────────────────────────────────────────────────────────
+log "Installando dipendenze Python..."
+pip install -q sageattention
+pip install -q onnxruntime-gpu  # per i modelli ONNX detection su GPU
+
+# ────────────────────────────────────────────────────────────
+# 4. Download modelli (skip se già presenti)
 # ────────────────────────────────────────────────────────────
 download_model() {
     local dest="$1"
@@ -104,7 +111,7 @@ download_model "$MODELS_DIR/detection" \
     "https://huggingface.co/JunkyByte/easy_ViTPose/resolve/main/onnx/wholebody/vitpose-l-wholebody.onnx"
 
 # ────────────────────────────────────────────────────────────
-# 4. Workflow di esempio
+# 5. Workflow di esempio
 # ────────────────────────────────────────────────────────────
 WORKFLOW_DIR="$COMFYUI_DIR/user/default/workflows"
 mkdir -p "$WORKFLOW_DIR"
@@ -115,7 +122,7 @@ if [ ! -f "$WORKFLOW_DIR/Wan_2_2_Animate_tracker_Head_Swap_v01.json" ]; then
 fi
 
 # ────────────────────────────────────────────────────────────
-# 5. Avvia ComfyUI
+# 6. Avvia ComfyUI
 # ────────────────────────────────────────────────────────────
 log "Avvio ComfyUI su porta 8188..."
 cd "$COMFYUI_DIR"
