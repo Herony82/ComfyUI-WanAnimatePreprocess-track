@@ -72,7 +72,7 @@ install_node "ComfyUI-WanAnimatePreprocess"       "https://github.com/kijai/Comf
 install_node "ComfyUI-WanAnimatePreprocess-track" "https://github.com/Herony82/ComfyUI-WanAnimatePreprocess-track"
 install_node "ComfyUI-KJNodes"                    "https://github.com/kijai/ComfyUI-KJNodes"
 install_node "ComfyUI-VideoHelperSuite"           "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
-install_node "ComfyUI-SuperNodes"                 "https://github.com/SuperComfy/ComfyUI-SuperNodes"
+install_node "ComfyUI-SuperNodes"                 "https://github.com/sonnybox/ComfyUI-SuperNodes"
 install_node "cg-use-everywhere"                  "https://github.com/chrisgoringe/cg-use-everywhere"
 install_node "rgthree-comfy"                      "https://github.com/rgthree/rgthree-comfy"
 install_node "ComfyUI-Easy-Use"                   "https://github.com/yolain/ComfyUI-Easy-Use"
