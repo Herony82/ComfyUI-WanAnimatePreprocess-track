@@ -53,6 +53,9 @@ install_node "ComfyUI-KJNodes"                    "https://github.com/kijai/Comf
 install_node "ComfyUI-VideoHelperSuite"           "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
 install_node "ComfyUI-SuperNodes"                 "https://github.com/SuperComfy/ComfyUI-SuperNodes"
 install_node "cg-use-everywhere"                  "https://github.com/chrisgoringe/cg-use-everywhere"
+install_node "rgthree-comfy"                      "https://github.com/rgthree/rgthree-comfy"
+install_node "ComfyUI-Easy-Use"                   "https://github.com/yolain/ComfyUI-Easy-Use"
+install_node "ComfyUI-Compare-Videos"             "https://github.com/surinder83singh/ComfyUI-compare-videos"
 
 # ────────────────────────────────────────────────────────────
 # 3. Download modelli (skip se già presenti)
