@@ -1,0 +1,10 @@
+[project]
+name = "comfyui-wananimatepreprocess-track"
+version = "1.0.0"
+description = "TrackedPoseAndFaceDetection - PoseAndFaceDetection con selezione manuale dei punti di tracking e optical flow (Lucas-Kanade). Richiede ComfyUI-WanAnimatePreprocess."
+requires-python = ">=3.10"
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "WanAnimatePreprocess Track"
+Icon = ""
