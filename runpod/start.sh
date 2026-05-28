@@ -9,12 +9,25 @@
 set -e
 
 # Trova dove il template ha installato ComfyUI
-if   [ -d "/workspace/ComfyUI" ];    then COMFYUI_DIR="/workspace/ComfyUI"
-elif [ -d "/workspace/comfyui" ];    then COMFYUI_DIR="/workspace/comfyui"
-elif [ -d "/comfyui" ];              then COMFYUI_DIR="/comfyui"
+if   [ -d "/workspace/runpod-slim/ComfyUI" ]; then COMFYUI_DIR="/workspace/runpod-slim/ComfyUI"
+elif [ -d "/workspace/ComfyUI" ];               then COMFYUI_DIR="/workspace/ComfyUI"
+elif [ -d "/workspace/comfyui" ];               then COMFYUI_DIR="/workspace/comfyui"
+elif [ -d "/comfyui" ];                         then COMFYUI_DIR="/comfyui"
 else
-    echo "[ERROR] ComfyUI non trovato. Controlla il template."
+    echo "[ERROR] ComfyUI non trovato. Path disponibili:"
+    find /workspace -maxdepth 3 -name "main.py" 2>/dev/null
     exit 1
+fi
+
+# Usa il venv del template se esiste (es. .venv-cu128)
+VENV_DIR=$(find "$COMFYUI_DIR" -maxdepth 1 -name ".venv*" -type d 2>/dev/null | head -1)
+if [ -n "$VENV_DIR" ]; then
+    log "Virtualenv trovato: $VENV_DIR"
+    PIP="$VENV_DIR/bin/pip"
+    PYTHON="$VENV_DIR/bin/python"
+else
+    PIP="pip"
+    PYTHON="python"
 fi
 
 MODELS_DIR="$COMFYUI_DIR/models"
@@ -34,7 +47,7 @@ mkdir -p "$NODES_DIR" "$MODELS_DIR" "$WORKFLOW_DIR"
 log "Installando dipendenze Python..."
 pip install -q sageattention          || warn "sageattention non installato"
 pip install -q flash-attn --no-build-isolation || warn "flash-attn non installato"
-pip install -q onnxruntime-gpu
+$PIP install -q onnxruntime-gpu
 
 # ────────────────────────────────────────────────────────────
 # 2. Custom nodes
@@ -50,7 +63,7 @@ install_node() {
         cd "$NODES_DIR/$name" && git pull -q
     fi
     [ -f "$NODES_DIR/$name/requirements.txt" ] && \
-        pip install -q -r "$NODES_DIR/$name/requirements.txt"
+        $PIP install -q -r "$NODES_DIR/$name/requirements.txt"
     cd /
 }
 
