@@ -61,8 +61,11 @@ install_node "ComfyUI-Compare-Videos"             "https://github.com/surinder83
 # 3. Dipendenze Python aggiuntive
 # ────────────────────────────────────────────────────────────
 log "Installando dipendenze Python..."
-pip install -q sageattention
+# sageattention: tenta installazione, continua anche se fallisce
+# (es. architettura Blackwell/RTX 5090 non ancora supportata)
+pip install -q sageattention || warn "sageattention non installato — usa sdpa o flash_attn nel workflow"
 pip install -q onnxruntime-gpu  # per i modelli ONNX detection su GPU
+pip install -q flash-attn --no-build-isolation || warn "flash-attn non installato — usa sdpa nel workflow"
 
 # ────────────────────────────────────────────────────────────
 # 4. Download modelli (skip se già presenti)
